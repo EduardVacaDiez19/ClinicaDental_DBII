@@ -58,6 +58,30 @@ CREATE TABLE DetalleCitaTratamiento (
 );
 GO
 
+-- TABLA DE ROLES (Los niveles de acceso)
+CREATE TABLE Roles (
+    RolID INT PRIMARY KEY,
+    NombreRol NVARCHAR(20) NOT NULL -- 'Admin', 'Secretaria', 'Paciente', 'Odontologo'
+);
+
+-- Insertamos los roles básicos
+INSERT INTO Roles VALUES (1, 'Administrador');
+INSERT INTO Roles VALUES (2, 'Usuario'); -- O 'Recepcionista'
+
+-- 2. TABLA DE USUARIOS (Para el Login)
+CREATE TABLE Usuarios (
+    UsuarioID INT IDENTITY(1,1) PRIMARY KEY,
+    NombreUsuario NVARCHAR(50) UNIQUE NOT NULL,
+    PasswordHash NVARCHAR(255) NOT NULL, -- ¡Nunca guardes contraseñas en texto plano!
+    RolID INT FOREIGN KEY REFERENCES Roles(RolID),
+    
+    -- Opcional: Para saber si este usuario es un empleado o un paciente real
+    EmpleadoRelacionadoID INT NULL, -- Podría ligar a Odontologos
+    PacienteRelacionadoID INT NULL  -- Podría ligar a Pacientes
+);
+GO
+
+
 -- TABLA SEGUROS
 CREATE TABLE Seguros (
     SeguroID INT IDENTITY(1,1) PRIMARY KEY,
