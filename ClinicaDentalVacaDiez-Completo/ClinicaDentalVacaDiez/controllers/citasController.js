@@ -103,6 +103,15 @@ async function createCita(req, res) {
         const result = await request.query(`
                 DECLARE @NuevaCitaID INT;
 
+                -- Validar si el odontólogo ya tiene una cita en ese horario
+                IF EXISTS (SELECT 1 FROM Citas 
+                           WHERE OdontologoID = @OdontologoID 
+                           AND FechaCita = @Fecha 
+                           AND HoraCita = @Hora)
+                BEGIN
+                    THROW 51000, 'El odontólogo ya tiene una cita asignada en ese horario.', 1;
+                END
+
                 INSERT INTO Citas (PacienteID, OdontologoID, FechaCita, HoraCita, Motivo) 
                 VALUES (@PacienteID, @OdontologoID, @Fecha, @Hora, @Motivo);
                 
