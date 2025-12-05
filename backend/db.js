@@ -47,4 +47,4 @@ const getRequest = () => {
 // Let's just export the original sql but if connection failed, we might need to handle it in controllers.
 // BETTER APPROACH: Update controllers to use a helper from db.js to get request.
 
-module.exports = { connectDB, sql };
+module.exports = { connectDB, sql, getRequest };

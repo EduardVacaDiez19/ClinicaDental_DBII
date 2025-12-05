@@ -6,8 +6,8 @@ async function getAdminStats(req, res) {
 
         // Citas para hoy
         const citasHoyResult = await pool.request().query(`
-            SELECT COUNT(*) as count 
-            FROM Citas 
+            SELECT COUNT(*) as count
+            FROM Citas
             WHERE FechaCita = CAST(GETDATE() AS DATE)
         `);
         const citasHoy = citasHoyResult.recordset[0].count;
@@ -18,11 +18,12 @@ async function getAdminStats(req, res) {
         `);
         const doctoresActivos = doctoresResult.recordset[0].count;
 
-        // Stock bajo
+        // Stock bajo - using Medicamentos table (Inventario doesn't exist in schema)
+        // Medicamentos has: MedicamentoID, Nombre, Descripcion, Stock, Precio
         const stockBajoResult = await pool.request().query(`
-            SELECT NombreProducto, Stock, StockMinimo 
-            FROM Inventario 
-            WHERE Stock < StockMinimo
+            SELECT Nombre as NombreProducto, Stock, 10 as StockMinimo
+            FROM Medicamentos
+            WHERE Stock < 10
         `);
         const alertasStock = stockBajoResult.recordset;
 
@@ -59,13 +60,13 @@ async function getPatientStats(req, res) {
         const proximaCitaResult = await pool.request()
             .input('pacienteId', sql.Int, pacienteId)
             .query(`
-                SELECT TOP 1 
-                    c.FechaCita, 
-                    c.HoraCita, 
+                SELECT TOP 1
+                    c.FechaCita,
+                    c.HoraCita,
                     o.Nombre + ' ' + o.Apellido as Odontologo
                 FROM Citas c
                 INNER JOIN Odontologos o ON c.OdontologoID = o.OdontologoID
-                WHERE c.PacienteID = @pacienteId 
+                WHERE c.PacienteID = @pacienteId
                 AND c.FechaCita >= CAST(GETDATE() AS DATE)
                 ORDER BY c.FechaCita ASC, c.HoraCita ASC
             `);
@@ -76,9 +77,9 @@ async function getPatientStats(req, res) {
         const citasPendientesResult = await pool.request()
             .input('pacienteId', sql.Int, pacienteId)
             .query(`
-                SELECT COUNT(*) as count 
-                FROM Citas 
-                WHERE PacienteID = @pacienteId 
+                SELECT COUNT(*) as count
+                FROM Citas
+                WHERE PacienteID = @pacienteId
                 AND FechaCita >= CAST(GETDATE() AS DATE)
             `);
         const citasPendientes = citasPendientesResult.recordset[0].count;

@@ -9,11 +9,14 @@ router.use(authenticateToken);
 // GET /api/citas - Obtener todas las citas
 router.get('/', citasController.getAllCitas);
 
-// GET /api/citas/:id - Obtener cita por ID
-router.get('/:id', citasController.getCitaById);
+// IMPORTANT: Specific routes MUST come BEFORE parameterized routes
+// Otherwise /fecha/:fecha would match /:id with id='fecha'
 
 // GET /api/citas/fecha/:fecha - Obtener citas por fecha
 router.get('/fecha/:fecha', citasController.getCitasByFecha);
+
+// GET /api/citas/:id - Obtener cita por ID (must come AFTER /fecha/:fecha)
+router.get('/:id', citasController.getCitaById);
 
 // GET /api/citas/:id/detalle-pago - Obtener detalle de pago para una cita
 router.get('/:id/detalle-pago', citasController.getDetallePago);
