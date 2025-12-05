@@ -2,8 +2,19 @@ const sql = require('mssql');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// RolID constants matching Roles table
+const ROL_ADMIN = 1;
+const ROL_USER = 2;
+
 const register = async (req, res) => {
-    const { nombre, apellido, email, password, telefono } = req.body;
+    // Note: frontend sends nombre, apellido, email, password, telefono
+    // but Usuarios table only has: NombreUsuario, PasswordHash, RolID
+    // we use 'email' as the NombreUsuario since it's unique identifier
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ msg: 'Email y password son requeridos' });
+    }
 
     try {
         // Check if user exists
@@ -18,8 +29,8 @@ const register = async (req, res) => {
 
         try {
             const userCheck = await pool.request()
-                .input('Email', sql.NVarChar, email)
-                .query('SELECT * FROM Usuarios WHERE Email = @Email');
+                .input('NombreUsuario', sql.NVarChar, email)
+                .query('SELECT * FROM Usuarios WHERE NombreUsuario = @NombreUsuario');
 
             if (userCheck.recordset.length > 0) {
                 return res.status(400).json({ msg: 'El usuario ya existe' });
@@ -29,15 +40,12 @@ const register = async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            // Insert user
+            // Insert user with correct schema: NombreUsuario, PasswordHash, RolID
             await pool.request()
-                .input('Nombre', sql.NVarChar, nombre)
-                .input('Apellido', sql.NVarChar, apellido)
-                .input('Email', sql.NVarChar, email)
-                .input('Password', sql.NVarChar, hashedPassword)
-                .input('Telefono', sql.NVarChar, telefono)
-                .input('Rol', sql.NVarChar, 'User')
-                .query('INSERT INTO Usuarios (Nombre, Apellido, Email, Password, Telefono, Rol) VALUES (@Nombre, @Apellido, @Email, @Password, @Telefono, @Rol)');
+                .input('NombreUsuario', sql.NVarChar, email)
+                .input('PasswordHash', sql.NVarChar, hashedPassword)
+                .input('RolID', sql.Int, ROL_USER)
+                .query('INSERT INTO Usuarios (NombreUsuario, PasswordHash, RolID) VALUES (@NombreUsuario, @PasswordHash, @RolID)');
 
             res.status(201).json({ msg: 'Usuario registrado exitosamente' });
         } catch (queryErr) {
@@ -67,18 +75,30 @@ const login = async (req, res) => {
         }
 
         let user;
+        let userRolName = 'User';
         try {
+            // Query using correct column name: NombreUsuario
             const result = await pool.request()
-                .input('Email', sql.NVarChar, email)
-                .query('SELECT * FROM Usuarios WHERE Email = @Email');
+                .input('NombreUsuario', sql.NVarChar, email)
+                .query(`
+                    SELECT u.UsuarioID, u.NombreUsuario, u.PasswordHash, u.RolID, r.NombreRol
+                    FROM Usuarios u
+                    LEFT JOIN Roles r ON u.RolID = r.RolID
+                    WHERE u.NombreUsuario = @NombreUsuario
+                `);
             user = result.recordset[0];
+            if (user) {
+                userRolName = user.NombreRol || 'User';
+            }
         } catch (queryErr) {
             console.log('Query failed, using mock user:', queryErr.message);
             // Fallback to mock user if query fails (e.g. table missing)
             if (email === 'admin@test.com') {
-                user = { UsuarioID: 1, Nombre: 'Admin', Rol: 'Admin', Password: await bcrypt.hash(password, 10) };
+                user = { UsuarioID: 1, NombreUsuario: 'Admin', RolID: ROL_ADMIN, PasswordHash: await bcrypt.hash(password, 10) };
+                userRolName = 'Administrador';
             } else {
-                user = { UsuarioID: 2, Nombre: 'Usuario Mock', Rol: 'User', Password: await bcrypt.hash(password, 10) };
+                user = { UsuarioID: 2, NombreUsuario: 'Usuario Mock', RolID: ROL_USER, PasswordHash: await bcrypt.hash(password, 10) };
+                userRolName = 'Usuario';
             }
         }
 
@@ -86,7 +106,8 @@ const login = async (req, res) => {
             return res.status(400).json({ msg: 'Credenciales inválidas' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.Password);
+        // Use correct field: PasswordHash instead of Password
+        const isMatch = await bcrypt.compare(password, user.PasswordHash);
 
         if (!isMatch) {
             return res.status(400).json({ msg: 'Credenciales inválidas' });
@@ -95,7 +116,7 @@ const login = async (req, res) => {
         const payload = {
             user: {
                 id: user.UsuarioID,
-                rol: user.Rol
+                rol: userRolName
             }
         };
 
@@ -105,7 +126,14 @@ const login = async (req, res) => {
             { expiresIn: '1h' },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token, user: { id: user.UsuarioID, nombre: user.Nombre, rol: user.Rol } });
+                res.json({
+                    token,
+                    user: {
+                        id: user.UsuarioID,
+                        nombre: user.NombreUsuario,
+                        rol: userRolName
+                    }
+                });
             }
         );
     } catch (err) {
