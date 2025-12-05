@@ -1,0 +1,13 @@
+--- Starting Backend Verification ---
+1. Logging in as Admin...
+   Login successful.
+2. Creating Patient...
+   Patient created with ID: 2007
+3. Creating Cita...
+   Cita created with ID: 21
+4. Generating Factura...
+!!! TEST FAILED !!!
+Generate Factura failed: {"error":"Ruta no encontrada"}
+Error: Generate Factura failed: {"error":"Ruta no encontrada"}
+    at runTests (C:\programacion\ClinicaDentalVacaDiez-Completo\ClinicaDentalVacaDiez\verify_backend.js:124:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

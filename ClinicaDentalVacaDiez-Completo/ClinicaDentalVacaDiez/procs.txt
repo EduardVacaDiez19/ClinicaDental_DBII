@@ -1,0 +1,59 @@
+[
+  {
+    "ROUTINE_NAME": "sp_AgregarTratamientoCita"
+  },
+  {
+    "ROUTINE_NAME": "sp_ObtenerHistorialPaciente"
+  },
+  {
+    "ROUTINE_NAME": "CancelarCita"
+  },
+  {
+    "ROUTINE_NAME": "sp_AsignarSeguroPaciente"
+  },
+  {
+    "ROUTINE_NAME": "sp_GenerarFactura"
+  },
+  {
+    "ROUTINE_NAME": "sp_upgraddiagrams"
+  },
+  {
+    "ROUTINE_NAME": "sp_helpdiagrams"
+  },
+  {
+    "ROUTINE_NAME": "sp_helpdiagramdefinition"
+  },
+  {
+    "ROUTINE_NAME": "sp_creatediagram"
+  },
+  {
+    "ROUTINE_NAME": "sp_renamediagram"
+  },
+  {
+    "ROUTINE_NAME": "sp_alterdiagram"
+  },
+  {
+    "ROUTINE_NAME": "sp_dropdiagram"
+  },
+  {
+    "ROUTINE_NAME": "AgendarCita"
+  },
+  {
+    "ROUTINE_NAME": "sp_EliminarPacienteCompleto"
+  },
+  {
+    "ROUTINE_NAME": "sp_RegistrarNuevoPacienteYCita"
+  },
+  {
+    "ROUTINE_NAME": "InsertarPaciente"
+  },
+  {
+    "ROUTINE_NAME": "obtenerhistorialpaciente"
+  },
+  {
+    "ROUTINE_NAME": "ActualizarPrecioTratamiento"
+  },
+  {
+    "ROUTINE_NAME": "sp_ValidarLogin"
+  }
+]
