@@ -1,5 +1,29 @@
+/**
+ * Página de Inicio
+ * 
+ * Componente de página principal que muestra la sección hero con llamada a la acción,
+ * información sobre la clínica y los servicios principales ofrecidos.
+ * Incluye enlaces para agendar citas y explorar servicios.
+ * 
+ * @component
+ * @returns {JSX.Element} Página de inicio completa con hero y servicios
+ * @example
+ * // Ruta: /
+ * <Home />
+ */
+
 import { Link } from 'react-router-dom';
 
+/**
+ * Función del componente Home
+ * 
+ * Renderiza la página de inicio con dos secciones principales:
+ * - Hero section con mensaje principal y botones de acción
+ * - Services section con los servicios dentales ofrecidos
+ * 
+ * @function Home
+ * @returns {JSX.Element} Página de inicio completa
+ */
 const Home = () => {
     return (
         <div className="bg-white">
@@ -95,4 +119,9 @@ const Home = () => {
     );
 };
 
+/**
+ * Exportar componente Home
+ * 
+ * @exports {Function} Componente de página de inicio
+ */
 export default Home;

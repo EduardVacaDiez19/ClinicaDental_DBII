@@ -1,4 +1,18 @@
 
+/**
+ * Componente Principal de la Aplicación
+ * 
+ * Componente raíz que configura el enrutamiento de la aplicación de la clínica dental.
+ * Utiliza React Router para gestionar la navegación entre diferentes páginas.
+ * Incluye el componente Navbar y Footer que se muestran en todas las páginas.
+ * 
+ * @component
+ * @returns {JSX.Element} Aplicación completa con enrutamiento
+ * @example
+ * // Renderizado en main.jsx
+ * <App />
+ */
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
@@ -9,6 +23,15 @@ import Services from './pages/Services'
 import About from './pages/About'
 import Footer from './components/Footer'
 
+/**
+ * Función principal de la aplicación
+ * 
+ * Define la estructura de la aplicación con enrutamiento y layout principal.
+ * Utiliza un diseño de columna flexible con header, contenido principal y footer.
+ * 
+ * @function App
+ * @returns {JSX.Element} Estructura completa de la aplicación
+ */
 function App() {
   return (
     <Router>
@@ -30,4 +53,9 @@ function App() {
   )
 }
 
+/**
+ * Exportar componente App
+ * 
+ * @exports {JSX.Element} Componente App para renderizado principal
+ */
 export default App

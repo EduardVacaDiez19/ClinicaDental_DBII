@@ -1,3 +1,17 @@
+/**
+ * Página de Inicio de Sesión
+ * 
+ * Componente que maneja el formulario de login de usuarios.
+ * Valida credenciales contra el backend y almacena el token JWT
+ * en localStorage. Incluye modo simulado cuando el backend no está disponible.
+ * 
+ * @component
+ * @returns {JSX.Element} Formulario de inicio de sesión
+ * @example
+ * // Ruta: /login
+ * <Login />
+ */
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,6 +20,18 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
+/**
+ * Manejar envío del formulario de login
+ * 
+ * Envía credenciales al backend, procesa la respuesta y almacena
+ * el token JWT. Si el backend no está disponible, usa credenciales
+ * simuladas para demostración.
+ * 
+ * @async
+ * @function handleSubmit
+ * @param {Event} e - Evento de formulario
+ * @returns {Promise<void>}
+ */
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {

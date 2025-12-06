@@ -2,158 +2,111 @@
 
 ## Descripción
 
-Directorio del backend alternativo/legacy del sistema de gestión de clínica dental. Contiene una implementación simplificada con funcionalidades básicas de autenticación y conexión a base de datos.
+Backend del sistema de gestión de clínica dental construido con Node.js y Express. Proporciona una API RESTful para la autenticación de usuarios y gestión de datos de la clínica.
 
-## Estructura
+## Tecnologías Utilizadas
+
+- **Node.js** - Entorno de ejecución de JavaScript
+- **Express.js** - Framework web minimalista
+- **mssql** - Cliente para SQL Server
+- **bcryptjs** - Hashing de contraseñas
+- **jsonwebtoken** - Autenticación JWT
+- **cors** - Manejo de CORS
+- **dotenv** - Variables de entorno
+
+## Instalación
+
+1. Instalar dependencias:
+```bash
+npm install
+```
+
+2. Configurar variables de entorno creando un archivo `.env`:
+```env
+PORT=5000
+JWT_SECRET=tu_secreto_jwt_aqui
+```
+
+3. Asegurarse de tener SQL Server corriendo localmente con la base de datos `ClinicaDental_DBII`
+
+## Estructura del Proyecto
 
 ```
 backend/
-├── controllers/          # Controladores de lógica de negocio
-│   ├── authController.js # Autenticación y registro de usuarios
-│   └── verify_all_fixes.test.js # Suite de tests de verificación
-├── routes/              # Definición de rutas HTTP
-│   └── authRoutes.js    # Rutas de autenticación
-├── tests/               # Tests unitarios y de integración
-│   ├── authController.test.js # Tests del controlador de auth
-│   └── new_fixes_verification.test.js # Tests de bugs corregidos
-├── db.js                # Módulo de conexión a base de datos
-└── server.js            # Punto de entrada del servidor Express
+├── server.js          # Servidor principal Express
+├── db.js              # Configuración de conexión a base de datos
+├── controllers/       # Controladores de la API
+│   └── authController.js
+├── routes/           # Rutas de la API
+│   └── authRoutes.js
+└── tests/            # Archivos de prueba
 ```
 
-## Configuración
+## Uso
 
-### Variables de Entorno
-
-Crear archivo `.env` en la raíz del proyecto con:
-
-```env
-# Base de Datos
-DB_SERVER=localhost
-DB_DATABASE=ClinicaDental
-DB_USER=tu_usuario
-DB_PASSWORD=tu_contraseña
-DB_PORT=1433
-DB_ENCRYPT=false
-DB_TRUST_CERTIFICATE=true
-
-# JWT
-JWT_SECRET=tu_clave_secreta_jwt
-
-# Servidor
-PORT=5000
-```
-
-### Instalación
-
+### Desarrollo
 ```bash
-# Instalar dependencias
-npm install
-
-# Ejecutar servidor de desarrollo
 npm run dev
-
-# Ejecutar tests
-npm test
 ```
 
-## Módulos Principales
-
-### `db.js`
-Módulo de conexión a SQL Server con patrón singleton y fallback a mock para desarrollo.
-
-**Funciones principales:**
-- `getConnection()`: Obtiene pool de conexiones
-- `getRequest()`: Obtiene request object para queries
-- `mockRequest`: Request simulado para desarrollo sin BD
-
-### `controllers/authController.js`
-Controlador de autenticación con soporte para registro y login.
-
-**Endpoints:**
-- `POST /api/auth/register`: Registro de nuevos usuarios
-- `POST /api/auth/login`: Autenticación y generación de JWT
-
-**Características:**
-- Hash de contraseñas con bcrypt (salt=10)
-- Generación de tokens JWT con expiración de 1h
-- Fallback a modo mock si BD no disponible
-- Validación de esquema correcto (NombreUsuario, PasswordHash, RolID)
-
-### `server.js`
-Servidor Express con configuración de middleware y rutas.
-
-**Middleware configurado:**
-- CORS para desarrollo
-- Body parser para JSON
-- Rutas de autenticación en `/api/auth`
-
-## Tests
-
-### Ejecutar Tests
-
+### Producción
 ```bash
-# Todos los tests
-node controllers/verify_all_fixes.test.js
-node tests/authController.test.js
-node tests/new_fixes_verification.test.js
-
-# O usar npm
-npm test
+npm start
 ```
 
-### Cobertura de Tests
+## API Endpoints
 
-- **verify_all_fixes.test.js**: 8 tests de verificación de bugs históricos
-- **authController.test.js**: 6 tests de esquema y funcionalidad de auth
-- **new_fixes_verification.test.js**: 7 tests de bugs corregidos recientemente
+### Autenticación
+- `POST /api/auth/register` - Registrar nuevo usuario
+- `POST /api/auth/login` - Iniciar sesión
 
-## Notas de Desarrollo
+### Ejemplos de Uso
 
-### Diferencias con ClinicaDentalVacaDiez-Completo
+#### Registrar Usuario
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "usuario@ejemplo.com", "password": "contraseña123"}'
+```
 
-Este backend es una versión simplificada. Para producción, usar el backend completo en:
-`/ClinicaDentalVacaDiez-Completo/ClinicaDentalVacaDiez/`
+#### Iniciar Sesión
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "usuario@ejemplo.com", "password": "contraseña123"}'
+```
 
-### Modo Mock
+## Características
 
-El sistema incluye fallbacks a datos mock cuando la BD no está disponible, útil para:
-- Desarrollo sin acceso a SQL Server
-- Tests de integración
-- Demos y presentaciones
+- ✅ Autenticación JWT
+- ✅ Hashing seguro de contraseñas
+- ✅ Manejo de errores
+- ✅ Modo simulado para desarrollo sin base de datos
+- ✅ CORS habilitado
+- ✅ Respuestas JSON estandarizadas
 
-### Esquema de Base de Datos
+## Base de Datos
 
-El controlador usa el esquema correcto:
-- `NombreUsuario` (no `Username`)
-- `PasswordHash` (no `Password`)
-- `RolID` como INT (no `Rol` como string)
+El sistema está diseñado para trabajar con SQL Server con las siguientes tablas principales:
+- `Usuarios` - Información de usuarios del sistema
+- `Roles` - Roles y permisos de usuario
 
-## Dependencias Principales
+## Desarrollo sin Base de Datos
 
-- **express**: Framework web
-- **mssql**: Cliente SQL Server
-- **bcryptjs**: Hash de contraseñas
-- **jsonwebtoken**: Generación de tokens JWT
-- **dotenv**: Gestión de variables de entorno
-- **cors**: Middleware CORS
+Si SQL Server no está disponible, el sistema automáticamente:
+- Registra usuarios en modo simulado
+- Permite login con credenciales simuladas
+- Usuario admin: `admin@test.com` (cualquier contraseña)
+- Usuario normal: cualquier otro email
 
-## Troubleshooting
+## Contribuir
 
-### Error de Conexión a BD
+1. Fork el proyecto
+2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
+3. Commit cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abrir Pull Request
 
-Si aparece error de conexión:
-1. Verificar que SQL Server esté corriendo
-2. Validar credenciales en `.env`
-3. Confirmar que puerto 1433 esté abierto
-4. El sistema usará modo mock automáticamente
+## Licencia
 
-### Tests Fallando
-
-Si los tests fallan:
-1. Verificar que archivos del proyecto completo existan
-2. Revisar rutas relativas en los tests
-3. Confirmar que no hay cambios de esquema en BD
-
-## Contacto y Soporte
-
-Para issues o preguntas sobre este módulo, referirse a la documentación principal del proyecto.
+Este proyecto es privado y pertenece a Clínica Dental Vaca Diez.

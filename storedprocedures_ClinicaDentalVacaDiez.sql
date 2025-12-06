@@ -1,6 +1,29 @@
---Stored Procedure
+-- =============================================
+-- Script: storedprocedures_ClinicaDentalVacaDiez.sql
+-- Descripción: Procedimientos almacenados para el sistema
+--              de gestión de clínica dental
+-- Autor: Sistema de Gestión Clínica Dental
+-- Fecha: 2024
+-- =============================================
 
---Insertar Pacientes
+--
+-- PROCEDIMIENTOS ALMACENADOS
+-- Lógica de negocio encapsulada en la base de datos
+--
+
+-- =============================================
+-- Procedimiento: InsertarPaciente
+-- Descripción: Inserta un nuevo paciente en el sistema
+-- Parámetros:
+--   @Nombre - Nombre del paciente
+--   @Apellido - Apellido del paciente
+--   @FechaNacimiento - Fecha de nacimiento
+--   @Genero - Género del paciente
+--   @Telefono - Teléfono de contacto
+--   @Correo - Email del paciente
+--   @Direccion - Dirección completa
+-- Retorna: Nada (inserta registro)
+-- =============================================
 create procedure InsertarPaciente
     @Nombre nvarchar(50),
     @Apellido nvarchar(50),
@@ -11,6 +34,7 @@ create procedure InsertarPaciente
     @Direccion nvarchar(100)
 as
 begin
+    -- Insertar nuevo paciente con todos sus datos personales
     insert into Pacientes (Nombre, Apellido, FechaNacimiento, Genero, Telefono, Correo, Direccion)
     values (@Nombre, @Apellido, @FechaNacimiento, @Genero, @Telefono, @Correo, @Direccion);
 end;
@@ -19,7 +43,18 @@ go
 
 
 
---Agendar Citas
+-- =============================================
+-- Procedimiento: AgendarCita
+-- Descripción: Agenda una nueva cita validando disponibilidad
+-- Parámetros:
+--   @PacienteID - ID del paciente
+--   @OdontologoID - ID del odontólogo
+--   @Fecha - Fecha de la cita
+--   @Hora - Hora de la cita
+--   @Motivo - Motivo de la consulta
+-- Retorna: ID de la cita creada
+-- Excepciones: Error si el odontólogo ya tiene cita en ese horario
+-- =============================================
 create procedure AgendarCita
     @PacienteID int,
     @OdontologoID int,
@@ -30,21 +65,21 @@ as
 begin
     set nocount on; 
 
-    -- 1. aqui voy a validar si el doctor ya tiene cita a esa misma fecha y hora
+    -- Validar si el odontólogo ya tiene cita en esa fecha y hora
     if exists (select 1 from Citas 
                where OdontologoID = @OdontologoID 
                and FechaCita = @Fecha 
                and HoraCita = @Hora)
     begin
-        -- Si existe, voy a lanzar un error y no inserto nada
-        ;throw 51000, 'El odont�logo ya tiene una cita asignada en ese horario.', 1;
+        -- Lanzar error si hay conflicto de horario
+        ;throw 51000, 'El odontólogo ya tiene una cita asignada en ese horario.', 1;
     end
 
-    -- Si est� libre, insertamos la cita
+    -- Si está disponible, insertar la cita
     insert into Citas (PacienteID, OdontologoID, FechaCita, HoraCita, Motivo)
     values (@PacienteID, @OdontologoID, @Fecha, @Hora, @Motivo);
 
-    -- Devuelvo el ID de la nueva cita creada
+    -- Retornar ID de la cita creada
     select scope_identity() as NuevaCitaID;
 end;
 go

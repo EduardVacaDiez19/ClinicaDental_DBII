@@ -1,5 +1,28 @@
+/**
+ * Panel de Control Principal
+ * 
+ * Componente que muestra el dashboard del usuario después del login.
+- * Incluye información del usuario, citas programadas, acciones rápidas
+-- * y diferenciación de interfaz según rol (admin/usuario normal).
+-* 
+ * @component
+ * @returns {JSX.Element} Dashboard personalizado según el usuario
+ * @example
+ * // Ruta: /dashboard (requiere autenticación)
+ * <Dashboard />
+ */
+
 import { useState, useEffect } from 'react';
 
+/**
+ * Función del componente Dashboard
+ * 
+ * Gestiona el estado del usuario, citas y modal de agendamiento.
+ * Muestra interfaz diferenciada para administradores y usuarios normales.
+ * 
+ * @function Dashboard
+ * @returns {JSX.Element} Panel de control completo
+ */
 const Dashboard = () => {
     const [user, setUser] = useState(null);
     const [appointments, setAppointments] = useState([]);
@@ -18,16 +41,41 @@ const Dashboard = () => {
         ]);
     }, []);
 
+/**
+ * Cerrar sesión del usuario
+ * 
+ * Elimina token y datos de usuario del localStorage
+ * y redirige a la página de login
+ * 
+ * @function handleLogout
+ * @returns {void}
+ */
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';
     };
 
+/**
+ * Abrir modal de nueva cita
+ * 
+ * Muestra el formulario para agendar una cita
+ * 
+ * @function handleNewAppointment
+ * @returns {void}
+ */
     const handleNewAppointment = () => {
         setShowModal(true);
     };
 
+/**
+ * Confirmar cita y cerrar modal
+ * 
+ * Simula el proceso de agendamiento y cierra el formulario
+ * 
+ * @function closeAppointment
+ * @returns {void}
+ */
     const closeAppointment = () => {
         setShowModal(false);
         alert('Cita agendada exitosamente (Simulación)');
@@ -179,4 +227,9 @@ const Dashboard = () => {
     );
 };
 
+/**
+ * Exportar componente Dashboard
+ * 
+ * @exports {Function} Componente de panel de control
+ */
 export default Dashboard;

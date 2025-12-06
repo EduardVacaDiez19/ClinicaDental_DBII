@@ -1,5 +1,29 @@
+/**
+ * Componente de Navegación Principal
+ * 
+ * Barra de navegación responsive que proporciona acceso a las principales
+ * secciones de la aplicación de la clínica dental. Incluye enlaces a
+ * inicio, servicios, nosotros, login y registro.
+ * 
+ * @component
+ * @returns {JSX.Element} Barra de navegación con enlaces principales
+ * @example
+ * // Se incluye automáticamente en App.jsx
+ * <Navbar />
+ */
+
 import { Link } from 'react-router-dom';
 
+/**
+ * Función del componente Navbar
+ * 
+ * Renderiza la barra de navegación con el logo de la clínica y los enlaces
+ * principales. Utiliza clases de Tailwind CSS para un diseño responsive
+ * y moderno.
+ * 
+ * @function Navbar
+ * @returns {JSX.Element} Barra de navegación completa
+ */
 const Navbar = () => {
     return (
         <nav className="bg-white shadow-md">
@@ -37,4 +61,9 @@ const Navbar = () => {
     );
 };
 
+/**
+ * Exportar componente Navbar
+ * 
+ * @exports {Function} Componente Navbar para navegación principal
+ */
 export default Navbar;

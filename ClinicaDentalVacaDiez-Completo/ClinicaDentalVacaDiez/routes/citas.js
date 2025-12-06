@@ -1,12 +1,33 @@
+/**
+ * Rutas de Gestión de Citas
+ * 
+ * Define todos los endpoints de la API para la administración de citas médicas.
+ * Requiere autenticación para todas las operaciones. Incluye funciones para
+ * crear, leer, actualizar y cancelar citas, así como generar facturas.
+ * 
+ * @module routes/citas
+ * @requires express
+ * @requires ../controllers/citasController
+ * @requires ../middleware/auth
+ */
+
 const express = require('express');
 const router = express.Router();
 const citasController = require('../controllers/citasController');
 const { authenticateToken, authorizeAdmin } = require('../middleware/auth');
 
-// Todas las rutas requieren autenticación
+/**
+ * Middleware de autenticación
+ * Todas las rutas de citas requieren token JWT válido
+ */
 router.use(authenticateToken);
 
-// GET /api/citas - Obtener todas las citas
+/**
+ * @route   GET /api/citas
+ * @desc    Obtener todas las citas del sistema
+ * @access  Private (requiere autenticación)
+ * @returns {Array} Lista de citas con información de paciente y odontólogo
+ */
 router.get('/', citasController.getAllCitas);
 
 // IMPORTANT: Specific routes MUST come BEFORE parameterized routes

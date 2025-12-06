@@ -1,15 +1,54 @@
+/**
+ * Controlador de Autenticación
+ * 
+ * Maneja el registro y login de usuarios en el sistema de la clínica dental.
+ * Utiliza el esquema de base de datos correcto con NombreUsuario, PasswordHash y RolID.
+ * Proporciona respaldo simulado cuando la conexión a base de datos falla.
+ * 
+ * @module controllers/authController
+ * @requires mssql
+ * @requires bcryptjs
+ * @requires jsonwebtoken
+ */
+
 const sql = require('mssql');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// RolID constants matching Roles table
+/**
+ * Constantes de RolID que coinciden con la tabla Roles
+ * @constant {number}
+ */
 const ROL_ADMIN = 1;
 const ROL_USER = 2;
 
+/**
+ * Registrar nuevo usuario en el sistema
+ * 
+ * Crea un nuevo usuario con el email como NombreUsuario y contraseña hasheada.
+ * Asigna automáticamente el rol de usuario normal (RolID = 2).
+ * Proporciona modo simulado cuando la base de datos no está disponible.
+ * 
+ * @async
+ * @function register
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} req.body - Datos del usuario
+ * @param {string} req.body.email - Email del usuario (usado como NombreUsuario)
+ * @param {string} req.body.password - Contraseña del usuario
+ * @param {Object} res - Objeto de respuesta Express
+ * @returns {Promise<void>} Respuesta JSON con mensaje de éxito o error
+ * @throws {Error} Error del servidor o de base de datos
+ * 
+ * @example
+ * // Solicitud exitosa
+ * POST /api/auth/register
+ * { "email": "usuario@ejemplo.com", "password": "contraseña123" }
+ * // Respuesta: { "msg": "Usuario registrado exitosamente" }
+ */
 const register = async (req, res) => {
-    // Note: frontend sends nombre, apellido, email, password, telefono
-    // but Usuarios table only has: NombreUsuario, PasswordHash, RolID
-    // we use 'email' as the NombreUsuario since it's unique identifier
+    // Nota: el frontend envía nombre, apellido, email, password, telefono
+    // pero la tabla Usuarios solo tiene: NombreUsuario, PasswordHash, RolID
+    // usamos 'email' como NombreUsuario ya que es identificador único
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -17,13 +56,13 @@ const register = async (req, res) => {
     }
 
     try {
-        // Check if user exists
+        // Verificar si el usuario ya existe
         let pool;
         try {
             pool = await sql.connect();
         } catch (e) {
             console.log('Using mock DB for register due to connection error');
-            // Mock behavior for demo
+            // Comportamiento simulado para demostración
             return res.status(201).json({ msg: 'Usuario registrado exitosamente (MOCK)' });
         }
 
@@ -36,11 +75,11 @@ const register = async (req, res) => {
                 return res.status(400).json({ msg: 'El usuario ya existe' });
             }
 
-            // Hash password
+            // Hashear la contraseña
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            // Insert user with correct schema: NombreUsuario, PasswordHash, RolID
+            // Insertar usuario con el esquema correcto: NombreUsuario, PasswordHash y RolID
             await pool.request()
                 .input('NombreUsuario', sql.NVarChar, email)
                 .input('PasswordHash', sql.NVarChar, hashedPassword)
@@ -58,6 +97,29 @@ const register = async (req, res) => {
     }
 };
 
+/**
+ * Iniciar sesión de usuario
+ * 
+ * Autentica al usuario usando email y contraseña, genera un token JWT
+ * válido por 1 hora. Incluye información del usuario y su rol en la respuesta.
+ * Proporciona usuarios simulados cuando la base de datos no está disponible.
+ * 
+ * @async
+ * @function login
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} req.body - Credenciales de usuario
+ * @param {string} req.body.email - Email del usuario
+ * @param {string} req.body.password - Contraseña del usuario
+ * @param {Object} res - Objeto de respuesta Express
+ * @returns {Promise<void>} Respuesta JSON con token JWT y datos del usuario
+ * @throws {Error} Error del servidor o de autenticación
+ * 
+ * @example
+ * // Solicitud exitosa
+ * POST /api/auth/login
+ * { "email": "usuario@ejemplo.com", "password": "contraseña123" }
+ * // Respuesta: { "token": "jwt_token", "user": { "id": 1, "nombre": "usuario@ejemplo.com", "rol": "Usuario" } }
+ */
 const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -67,7 +129,7 @@ const login = async (req, res) => {
             pool = await sql.connect();
         } catch (e) {
             console.log('Using mock DB for login due to connection error');
-            // Mock login for demo
+            // Inicio de sesión simulado para demostración
             return res.json({
                 token: 'mock-token',
                 user: { id: 1, nombre: 'Usuario Mock', rol: 'User' }
@@ -77,7 +139,7 @@ const login = async (req, res) => {
         let user;
         let userRolName = 'User';
         try {
-            // Query using correct column name: NombreUsuario
+            // Consultar usando el nombre de columna correcto: NombreUsuario
             const result = await pool.request()
                 .input('NombreUsuario', sql.NVarChar, email)
                 .query(`
@@ -92,7 +154,7 @@ const login = async (req, res) => {
             }
         } catch (queryErr) {
             console.log('Query failed, using mock user:', queryErr.message);
-            // Fallback to mock user if query fails (e.g. table missing)
+            // Recurso alternativo: usar usuario simulado si la consulta falla (p. ej., tabla ausente)
             if (email === 'admin@test.com') {
                 user = { UsuarioID: 1, NombreUsuario: 'Admin', RolID: ROL_ADMIN, PasswordHash: await bcrypt.hash(password, 10) };
                 userRolName = 'Administrador';
@@ -106,7 +168,7 @@ const login = async (req, res) => {
             return res.status(400).json({ msg: 'Credenciales inválidas' });
         }
 
-        // Use correct field: PasswordHash instead of Password
+        // Usar el campo correcto: PasswordHash en lugar de Password
         const isMatch = await bcrypt.compare(password, user.PasswordHash);
 
         if (!isMatch) {
@@ -142,6 +204,11 @@ const login = async (req, res) => {
     }
 };
 
+/**
+ * Exportar funciones del controlador de autenticación
+ * 
+ * @exports {Object} Funciones register y login
+ */
 module.exports = {
     register,
     login
