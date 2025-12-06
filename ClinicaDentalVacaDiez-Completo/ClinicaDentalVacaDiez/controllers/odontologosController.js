@@ -5,7 +5,7 @@ async function getAllOdontologos(req, res) {
     try {
         const pool = await getConnection();
         const result = await pool.request().query(`
-            SELECT 
+            SELECT
                 OdontologoID,
                 Nombre,
                 Apellido,
@@ -32,7 +32,7 @@ async function getOdontologoById(req, res) {
         const result = await pool.request()
             .input('id', sql.Int, id)
             .query(`
-                SELECT 
+                SELECT
                     OdontologoID,
                     Nombre,
                     Apellido,
@@ -63,7 +63,7 @@ async function getAgendaOdontologo(req, res) {
         const pool = await getConnection();
 
         let query = `
-            SELECT 
+            SELECT
                 c.CitaID,
                 c.FechaCita,
                 c.HoraCita,
@@ -98,20 +98,34 @@ async function getAgendaOdontologo(req, res) {
 async function createOdontologo(req, res) {
     try {
         const { nombre, apellido, especialidad, telefono, correo } = req.body;
+
+        // Validar campos requeridos
+        if (!nombre || !apellido) {
+            return res.status(400).json({ error: 'Nombre y apellido son requeridos' });
+        }
+
+        if (!especialidad) {
+            return res.status(400).json({ error: 'Especialidad es requerida' });
+        }
+
         const pool = await getConnection();
 
-        await pool.request()
+        const result = await pool.request()
             .input('Nombre', sql.NVarChar, nombre)
             .input('Apellido', sql.NVarChar, apellido)
             .input('Especialidad', sql.NVarChar, especialidad)
-            .input('Telefono', sql.NVarChar, telefono)
-            .input('Correo', sql.NVarChar, correo)
+            .input('Telefono', sql.NVarChar, telefono || null)
+            .input('Correo', sql.NVarChar, correo || null)
             .query(`
                 INSERT INTO Odontologos (Nombre, Apellido, Especialidad, Telefono, Correo)
+                OUTPUT INSERTED.OdontologoID
                 VALUES (@Nombre, @Apellido, @Especialidad, @Telefono, @Correo)
             `);
 
-        res.status(201).json({ message: 'Odontólogo creado exitosamente' });
+        res.status(201).json({
+            message: 'Odontólogo creado exitosamente',
+            odontologoId: result.recordset[0].OdontologoID
+        });
     } catch (error) {
         console.error('Error creando odontólogo:', error);
         res.status(500).json({ error: 'Error al crear odontólogo' });

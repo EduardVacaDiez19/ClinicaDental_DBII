@@ -5,7 +5,7 @@ async function getAllCitas(req, res) {
     try {
         const pool = await getConnection();
         const result = await pool.request().query(`
-            SELECT 
+            SELECT
                 c.CitaID,
                 c.FechaCita,
                 c.HoraCita,
@@ -15,7 +15,7 @@ async function getAllCitas(req, res) {
                 o.Nombre + ' ' + o.Apellido as Odontologo,
                 o.OdontologoID,
                 o.Especialidad,
-                CASE 
+                CASE
                     WHEN c.FechaCita < CAST(GETDATE() AS DATE) THEN 'Realizada'
                     WHEN c.FechaCita = CAST(GETDATE() AS DATE) THEN 'Hoy'
                     ELSE 'Programada'
@@ -42,7 +42,7 @@ async function getCitaById(req, res) {
         const result = await pool.request()
             .input('id', sql.Int, id)
             .query(`
-                SELECT 
+                SELECT
                     c.CitaID,
                     c.PacienteID,
                     c.OdontologoID,
@@ -104,24 +104,24 @@ async function createCita(req, res) {
                 DECLARE @NuevaCitaID INT;
 
                 -- Validar si el odontólogo ya tiene una cita en ese horario
-                IF EXISTS (SELECT 1 FROM Citas 
-                           WHERE OdontologoID = @OdontologoID 
-                           AND FechaCita = @Fecha 
+                IF EXISTS (SELECT 1 FROM Citas
+                           WHERE OdontologoID = @OdontologoID
+                           AND FechaCita = @Fecha
                            AND HoraCita = @Hora)
                 BEGIN
                     THROW 51000, 'El odontólogo ya tiene una cita asignada en ese horario.', 1;
                 END
 
-                INSERT INTO Citas (PacienteID, OdontologoID, FechaCita, HoraCita, Motivo) 
+                INSERT INTO Citas (PacienteID, OdontologoID, FechaCita, HoraCita, Motivo)
                 VALUES (@PacienteID, @OdontologoID, @Fecha, @Hora, @Motivo);
-                
+
                 SET @NuevaCitaID = SCOPE_IDENTITY();
 
                 IF @TratamientoID IS NOT NULL
                 BEGIN
                     INSERT INTO DetalleCitaTratamiento (CitaID, TratamientoID, Cantidad, PrecioTotal)
-                    SELECT @NuevaCitaID, @TratamientoID, 1, Costo 
-                    FROM Tratamientos 
+                    SELECT @NuevaCitaID, @TratamientoID, 1, Costo
+                    FROM Tratamientos
                     WHERE TratamientoID = @TratamientoID;
                 END
 
@@ -160,7 +160,7 @@ async function updateCita(req, res) {
             .input('pacienteId', sql.Int, pacienteId)
             .input('odontologoId', sql.Int, odontologoId)
             .input('fecha', sql.Date, fecha)
-            .input('hora', sql.Time, hora)
+            .input('hora', sql.VarChar(5), hora)
             .input('motivo', sql.NVarChar, motivo)
             .query(`
                 UPDATE Citas
@@ -184,6 +184,12 @@ async function deleteCita(req, res) {
     try {
         const { id } = req.params;
         const user = req.user; // From auth middleware
+
+        // Validar que user existe (middleware ejecutado correctamente)
+        if (!user) {
+            console.error('[DELETE] Error: req.user is undefined - auth middleware may not have executed');
+            return res.status(401).json({ error: 'No autorizado - sesión no válida' });
+        }
 
         console.log(`[DELETE] Request to cancel CitaID: ${id}`);
         console.log(`[DELETE] User: ${JSON.stringify(user)}`);
@@ -235,7 +241,7 @@ async function getCitasByFecha(req, res) {
         const result = await pool.request()
             .input('fecha', sql.Date, fecha)
             .query(`
-                SELECT 
+                SELECT
                     c.CitaID,
                     c.HoraCita,
                     c.Motivo,
@@ -278,9 +284,9 @@ async function getDetallePago(req, res) {
         const citaData = await pool.request()
             .input('citaId', sql.Int, id)
             .query(`
-                SELECT 
-                    c.CitaID, 
-                    c.PacienteID, 
+                SELECT
+                    c.CitaID,
+                    c.PacienteID,
                     p.TipoSeguro,
                     ISNULL(s.Descuento, 0) as Descuento
                 FROM Citas c
@@ -301,7 +307,7 @@ async function getDetallePago(req, res) {
         const tratamientos = await pool.request()
             .input('citaId', sql.Int, id)
             .query(`
-                SELECT 
+                SELECT
                     t.Nombre as NombreTratamiento,
                     dct.PrecioTotal
                 FROM DetalleCitaTratamiento dct

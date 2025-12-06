@@ -3,7 +3,7 @@ const { getConnection } = require('../config/database');
 async function getAllSeguros(req, res) {
     try {
         const pool = await getConnection();
-        const result = await pool.request().query('SELECT SeguroID, Nombre FROM Seguros ORDER BY Nombre');
+        const result = await pool.request().query('SELECT SeguroID, Nombre, Descuento FROM Seguros ORDER BY Nombre');
         res.json(result.recordset);
     } catch (error) {
         console.error('Error obteniendo seguros:', error);

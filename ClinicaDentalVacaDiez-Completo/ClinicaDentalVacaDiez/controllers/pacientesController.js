@@ -5,7 +5,7 @@ async function getAllPacientes(req, res) {
     try {
         const pool = await getConnection();
         const result = await pool.request().query(`
-            SELECT 
+            SELECT
                 PacienteID,
                 Nombre,
                 Apellido,
@@ -35,7 +35,7 @@ async function getPacienteById(req, res) {
         const result = await pool.request()
             .input('id', sql.Int, id)
             .query(`
-                SELECT 
+                SELECT
                     PacienteID,
                     Nombre,
                     Apellido,
@@ -102,7 +102,21 @@ async function updatePaciente(req, res) {
         const { id } = req.params;
         const { nombre, apellido, fechaNacimiento, genero, telefono, correo, direccion, tipoSeguro } = req.body;
 
+        // Validar campos requeridos
+        if (!nombre || !apellido) {
+            return res.status(400).json({ error: 'Nombre y apellido son requeridos' });
+        }
+
         const pool = await getConnection();
+
+        // Verificar si el paciente existe antes de actualizar
+        const checkResult = await pool.request()
+            .input('id', sql.Int, id)
+            .query('SELECT PacienteID FROM Pacientes WHERE PacienteID = @id');
+
+        if (checkResult.recordset.length === 0) {
+            return res.status(404).json({ error: 'Paciente no encontrado' });
+        }
 
         await pool.request()
             .input('id', sql.Int, id)

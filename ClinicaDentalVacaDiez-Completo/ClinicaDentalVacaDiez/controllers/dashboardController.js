@@ -54,7 +54,24 @@ async function getAdminStats(req, res) {
 async function getPatientStats(req, res) {
     try {
         const { pacienteId } = req.params;
+
+        // Validar que pacienteId sea un número válido
+        if (!pacienteId || isNaN(parseInt(pacienteId))) {
+            return res.status(400).json({ error: 'ID de paciente inválido' });
+        }
+
         const pool = await getConnection();
+
+        // Verificar primero si el paciente existe
+        const pacienteCheck = await pool.request()
+            .input('pacienteId', sql.Int, pacienteId)
+            .query('SELECT PacienteID, TipoSeguro FROM Pacientes WHERE PacienteID = @pacienteId');
+
+        if (pacienteCheck.recordset.length === 0) {
+            return res.status(404).json({ error: 'Paciente no encontrado' });
+        }
+
+        const tipoSeguro = pacienteCheck.recordset[0].TipoSeguro || null;
 
         // Próxima cita
         const proximaCitaResult = await pool.request()
@@ -83,12 +100,6 @@ async function getPatientStats(req, res) {
                 AND FechaCita >= CAST(GETDATE() AS DATE)
             `);
         const citasPendientes = citasPendientesResult.recordset[0].count;
-
-        // Info del paciente (Seguro)
-        const pacienteResult = await pool.request()
-            .input('pacienteId', sql.Int, pacienteId)
-            .query('SELECT TipoSeguro FROM Pacientes WHERE PacienteID = @pacienteId');
-        const tipoSeguro = pacienteResult.recordset[0]?.TipoSeguro || null;
 
         res.json({
             proximaCita,
