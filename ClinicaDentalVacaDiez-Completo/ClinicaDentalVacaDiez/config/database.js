@@ -1,6 +1,24 @@
+/**
+ * @fileoverview Modulo de configuracion y conexion a SQL Server
+ * @module config/database
+ * @requires mssql
+ * @requires dotenv
+ */
+
 const sql = require('mssql');
 require('dotenv').config();
 
+/**
+ * Configuracion de conexion a SQL Server
+ * @const {Object} config
+ * @property {string} server - servidor de base de datos
+ * @property {string} database - nombre de la base de datos
+ * @property {string} user - usuario de autenticacion
+ * @property {string} password - contraseña de autenticacion
+ * @property {number} port - puerto de conexion (default: 1433)
+ * @property {Object} options - opciones de conexion
+ * @property {Object} pool - configuracion del pool de conexiones
+ */
 const config = {
     server: process.env.DB_SERVER || 'localhost',
     database: process.env.DB_DATABASE || 'ClinicaDental',
@@ -21,6 +39,14 @@ const config = {
 
 let pool = null;
 
+/**
+ * Obtiene o crea una conexion al pool de SQL Server
+ * @async
+ * @function getConnection
+ * @returns {Promise<sql.ConnectionPool>} pool de conexiones activo
+ * @throws {Error} si falla la conexion a la base de datos
+ * @description implementa patron singleton para reutilizar la misma conexion
+ */
 async function getConnection() {
     try {
         if (pool) {
@@ -38,6 +64,13 @@ async function getConnection() {
     }
 }
 
+/**
+ * Cierra la conexion al pool de SQL Server
+ * @async
+ * @function closeConnection
+ * @returns {Promise<void>}
+ * @description libera recursos del pool y resetea la variable global
+ */
 async function closeConnection() {
     try {
         if (pool) {

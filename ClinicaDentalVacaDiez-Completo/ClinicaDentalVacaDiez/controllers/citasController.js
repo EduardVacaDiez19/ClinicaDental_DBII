@@ -1,6 +1,15 @@
 const { getConnection, sql } = require('../config/database');
 
-// Obtener todas las citas
+/**
+ * Obtiene todas las citas del sistema con informacion del paciente y odontologo
+ * @async
+ * @function getAllCitas
+ * @param {Object} req - objeto de peticion Express
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con JSON conteniendo array de citas o error
+ * @description retorna todas las citas ordenadas por fecha descendente, incluyendo
+ * estado calculado (Realizada/Hoy/Programada) basado en la fecha actual
+ */
 async function getAllCitas(req, res) {
     try {
         const pool = await getConnection();
@@ -33,7 +42,15 @@ async function getAllCitas(req, res) {
     }
 }
 
-// Obtener cita por ID
+/**
+ * Obtiene una cita especifica por su ID
+ * @async
+ * @function getCitaById
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID de la cita a buscar
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con JSON de la cita encontrada o error 404
+ */
 async function getCitaById(req, res) {
     try {
         const { id } = req.params;
@@ -69,7 +86,21 @@ async function getCitaById(req, res) {
     }
 }
 
-// Crear nueva cita
+/**
+ * Crea una nueva cita en el sistema
+ * @async
+ * @function createCita
+ * @param {Object} req - objeto de peticion Express
+ * @param {number} req.body.pacienteId - ID del paciente
+ * @param {number} req.body.odontologoId - ID del odontologo
+ * @param {string} req.body.fecha - fecha de la cita (formato YYYY-MM-DD)
+ * @param {string} req.body.hora - hora de la cita (formato HH:MM)
+ * @param {string} req.body.motivo - motivo de la consulta
+ * @param {number} [req.body.tratamientoId] - ID del tratamiento asociado (opcional)
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con JSON conteniendo ID de cita creada o error
+ * @description valida disponibilidad del odontologo y crea cita con tratamiento opcional
+ */
 async function createCita(req, res) {
     try {
         const { pacienteId, odontologoId, fecha, hora, motivo, tratamientoId } = req.body;
@@ -147,7 +178,20 @@ async function createCita(req, res) {
     }
 }
 
-// Actualizar cita
+/**
+ * Actualiza una cita existente
+ * @async
+ * @function updateCita
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID de la cita a actualizar
+ * @param {number} req.body.pacienteId - nuevo ID del paciente
+ * @param {number} req.body.odontologoId - nuevo ID del odontologo
+ * @param {string} req.body.fecha - nueva fecha de la cita
+ * @param {string} req.body.hora - nueva hora de la cita
+ * @param {string} req.body.motivo - nuevo motivo de la consulta
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con mensaje de exito o error
+ */
 async function updateCita(req, res) {
     try {
         const { id } = req.params;
@@ -179,7 +223,19 @@ async function updateCita(req, res) {
     }
 }
 
-// Cancelar/Eliminar cita
+/**
+ * Cancela o elimina una cita del sistema
+ * @async
+ * @function deleteCita
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID de la cita a cancelar
+ * @param {Object} req.user - usuario autenticado del middleware
+ * @param {string} req.user.role - rol del usuario (Administrador o Usuario)
+ * @param {number} req.user.pacienteId - ID del paciente asociado al usuario
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con mensaje de exito o error
+ * @description valida permisos: admin puede cancelar cualquier cita, usuario solo las propias
+ */
 async function deleteCita(req, res) {
     try {
         const { id } = req.params;
@@ -232,7 +288,15 @@ async function deleteCita(req, res) {
     }
 }
 
-// Obtener citas por fecha
+/**
+ * Obtiene todas las citas de una fecha especifica
+ * @async
+ * @function getCitasByFecha
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.fecha - fecha a consultar (formato YYYY-MM-DD)
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con array de citas de la fecha especificada
+ */
 async function getCitasByFecha(req, res) {
     try {
         const { fecha } = req.params;
@@ -273,7 +337,16 @@ module.exports = {
     generarFactura
 };
 
-// Obtener detalle de pago (pre-factura)
+/**
+ * Obtiene el detalle de pago de una cita (pre-factura)
+ * @async
+ * @function getDetallePago
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID de la cita
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con detalle de pago incluyendo tratamientos, descuentos y total
+ * @description calcula subtotal de tratamientos, aplica descuento del seguro y verifica si ya fue facturada
+ */
 async function getDetallePago(req, res) {
     try {
         const { id } = req.params;
@@ -347,7 +420,17 @@ async function getDetallePago(req, res) {
     }
 }
 
-// Generar factura
+/**
+ * Genera la factura final para una cita
+ * @async
+ * @function generarFactura
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID de la cita a facturar
+ * @param {string} [req.body.metodoPago='Efectivo'] - metodo de pago (Efectivo, Tarjeta, etc)
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con mensaje de exito o error
+ * @description ejecuta stored procedure sp_GenerarFactura que crea la factura en BD
+ */
 async function generarFactura(req, res) {
     try {
         const { id } = req.params;

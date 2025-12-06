@@ -1,6 +1,13 @@
 const { getConnection, sql } = require('../config/database');
 
-// Obtener todos los odontólogos
+/**
+ * Obtiene todos los odontologos del sistema
+ * @async
+ * @function getAllOdontologos
+ * @param {Object} req - objeto de peticion Express
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con array de odontologos ordenados por apellido
+ */
 async function getAllOdontologos(req, res) {
     try {
         const pool = await getConnection();
@@ -23,7 +30,15 @@ async function getAllOdontologos(req, res) {
     }
 }
 
-// Obtener odontólogo por ID
+/**
+ * Obtiene un odontologo especifico por su ID
+ * @async
+ * @function getOdontologoById
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID del odontologo
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con datos del odontologo o error 404
+ */
 async function getOdontologoById(req, res) {
     try {
         const { id } = req.params;
@@ -54,7 +69,17 @@ async function getOdontologoById(req, res) {
     }
 }
 
-// Obtener agenda del odontólogo
+/**
+ * Obtiene la agenda de citas de un odontologo
+ * @async
+ * @function getAgendaOdontologo
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID del odontologo
+ * @param {string} [req.query.fecha] - fecha especifica a consultar (opcional)
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con array de citas del odontologo
+ * @description si no se especifica fecha, retorna citas futuras desde hoy
+ */
 async function getAgendaOdontologo(req, res) {
     try {
         const { id } = req.params;
@@ -95,6 +120,20 @@ async function getAgendaOdontologo(req, res) {
     }
 }
 
+/**
+ * Crea un nuevo odontologo en el sistema
+ * @async
+ * @function createOdontologo
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.body.nombre - nombre del odontologo
+ * @param {string} req.body.apellido - apellido del odontologo
+ * @param {string} req.body.especialidad - especialidad medica
+ * @param {string} [req.body.telefono] - telefono de contacto (opcional)
+ * @param {string} [req.body.correo] - correo electronico (opcional)
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con ID del odontologo creado o error
+ * @description valida campos requeridos (nombre, apellido, especialidad)
+ */
 async function createOdontologo(req, res) {
     try {
         const { nombre, apellido, especialidad, telefono, correo } = req.body;

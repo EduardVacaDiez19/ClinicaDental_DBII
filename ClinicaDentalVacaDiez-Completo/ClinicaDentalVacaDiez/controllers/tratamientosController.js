@@ -1,5 +1,13 @@
 const { getConnection } = require('../config/database');
 
+/**
+ * Obtiene todos los tratamientos dentales disponibles
+ * @async
+ * @function getAllTratamientos
+ * @param {Object} req - objeto de peticion Express
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con array de tratamientos ordenados por nombre, incluyendo costos
+ */
 async function getAllTratamientos(req, res) {
     try {
         const pool = await getConnection();

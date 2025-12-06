@@ -2,6 +2,17 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getConnection, sql } = require('../config/database');
 
+/**
+ * Autentica un usuario y genera un token JWT
+ * @async
+ * @function login
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.body.username - nombre de usuario
+ * @param {string} req.body.password - contraseña en texto plano
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con token JWT y datos del usuario o error de autenticacion
+ * @description verifica credenciales contra BD, valida password con bcrypt y genera token con expiracion de 8h
+ */
 async function login(req, res) {
     try {
         const { username, password } = req.body;
@@ -16,7 +27,7 @@ async function login(req, res) {
         const result = await pool.request()
             .input('username', sql.NVarChar, username)
             .query(`
-                SELECT 
+                SELECT
                     u.UsuarioID,
                     u.NombreUsuario,
                     u.PasswordHash,
@@ -24,10 +35,10 @@ async function login(req, res) {
                     u.PacienteRelacionadoID,
                     u.EmpleadoRelacionadoID,
                     r.NombreRol,
-                    CASE 
-                        WHEN u.EmpleadoRelacionadoID IS NOT NULL THEN 
+                    CASE
+                        WHEN u.EmpleadoRelacionadoID IS NOT NULL THEN
                             (SELECT Nombre + ' ' + Apellido FROM Odontologos WHERE OdontologoID = u.EmpleadoRelacionadoID)
-                        WHEN u.PacienteRelacionadoID IS NOT NULL THEN 
+                        WHEN u.PacienteRelacionadoID IS NOT NULL THEN
                             (SELECT Nombre + ' ' + Apellido FROM Pacientes WHERE PacienteID = u.PacienteRelacionadoID)
                         ELSE 'Usuario'
                     END as NombreCompleto
@@ -80,6 +91,19 @@ async function login(req, res) {
     }
 }
 
+/**
+ * Registra un nuevo usuario en el sistema
+ * @async
+ * @function register
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.body.username - nombre de usuario unico
+ * @param {string} req.body.password - contraseña en texto plano
+ * @param {number} req.body.roleId - ID del rol a asignar
+ * @param {string} [req.body.nombre] - nombre completo del usuario (opcional)
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con mensaje de exito o error
+ * @description valida unicidad del username, hashea password con bcrypt (salt=10) y crea usuario en BD
+ */
 async function register(req, res) {
     try {
         const { username, password, roleId, nombre } = req.body;

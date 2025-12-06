@@ -1,6 +1,13 @@
 const { getConnection, sql } = require('../config/database');
 
-// Obtener todos los pacientes
+/**
+ * Obtiene todos los pacientes del sistema
+ * @async
+ * @function getAllPacientes
+ * @param {Object} req - objeto de peticion Express
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con JSON conteniendo array de pacientes ordenados por apellido
+ */
 async function getAllPacientes(req, res) {
     try {
         const pool = await getConnection();
@@ -26,7 +33,15 @@ async function getAllPacientes(req, res) {
     }
 }
 
-// Obtener un paciente por ID
+/**
+ * Obtiene un paciente especifico por su ID
+ * @async
+ * @function getPacienteById
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID del paciente a buscar
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con JSON del paciente encontrado o error 404
+ */
 async function getPacienteById(req, res) {
     try {
         const { id } = req.params;
@@ -60,7 +75,22 @@ async function getPacienteById(req, res) {
     }
 }
 
-// Crear nuevo paciente
+/**
+ * Crea un nuevo paciente en el sistema
+ * @async
+ * @function createPaciente
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.body.nombre - nombre del paciente
+ * @param {string} req.body.apellido - apellido del paciente
+ * @param {string} req.body.fechaNacimiento - fecha de nacimiento (formato YYYY-MM-DD)
+ * @param {string} [req.body.genero='M'] - genero del paciente (M/F)
+ * @param {string} req.body.telefono - numero de telefono
+ * @param {string} req.body.correo - correo electronico
+ * @param {string} req.body.direccion - direccion del paciente
+ * @param {string} req.body.tipoSeguro - tipo de seguro medico
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con ID del paciente creado o error
+ */
 async function createPaciente(req, res) {
     try {
         const { nombre, apellido, fechaNacimiento, genero, telefono, correo, direccion, tipoSeguro } = req.body;
@@ -96,7 +126,24 @@ async function createPaciente(req, res) {
     }
 }
 
-// Actualizar paciente
+/**
+ * Actualiza los datos de un paciente existente
+ * @async
+ * @function updatePaciente
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID del paciente a actualizar
+ * @param {string} req.body.nombre - nuevo nombre del paciente
+ * @param {string} req.body.apellido - nuevo apellido del paciente
+ * @param {string} req.body.fechaNacimiento - nueva fecha de nacimiento
+ * @param {string} req.body.genero - nuevo genero
+ * @param {string} req.body.telefono - nuevo telefono
+ * @param {string} req.body.correo - nuevo correo
+ * @param {string} req.body.direccion - nueva direccion
+ * @param {string} req.body.tipoSeguro - nuevo tipo de seguro
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con mensaje de exito o error
+ * @description valida que el paciente existe antes de actualizar y que nombre/apellido esten presentes
+ */
 async function updatePaciente(req, res) {
     try {
         const { id } = req.params;
@@ -148,7 +195,16 @@ async function updatePaciente(req, res) {
     }
 }
 
-// Eliminar paciente
+/**
+ * Elimina un paciente del sistema
+ * @async
+ * @function deletePaciente
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID del paciente a eliminar
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con mensaje de exito o error
+ * @description usa stored procedure sp_EliminarPacienteCompleto que maneja relaciones en cascada
+ */
 async function deletePaciente(req, res) {
     try {
         const { id } = req.params;
@@ -166,7 +222,16 @@ async function deletePaciente(req, res) {
     }
 }
 
-// Obtener historial de paciente
+/**
+ * Obtiene el historial medico completo de un paciente
+ * @async
+ * @function getHistorialPaciente
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.id - ID del paciente
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con array del historial medico del paciente
+ * @description ejecuta stored procedure obtenerhistorialpaciente
+ */
 async function getHistorialPaciente(req, res) {
     try {
         const { id } = req.params;

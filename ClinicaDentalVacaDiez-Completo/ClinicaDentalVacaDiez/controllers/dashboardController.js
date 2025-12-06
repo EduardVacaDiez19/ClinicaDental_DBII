@@ -1,5 +1,13 @@
 const { getConnection, sql } = require('../config/database');
 
+/**
+ * Obtiene estadisticas del dashboard para administradores
+ * @async
+ * @function getAdminStats
+ * @param {Object} req - objeto de peticion Express
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con estadisticas: citas hoy, doctores activos, pacientes totales, total facturado, alertas de stock
+ */
 async function getAdminStats(req, res) {
     try {
         const pool = await getConnection();
@@ -51,6 +59,16 @@ async function getAdminStats(req, res) {
     }
 }
 
+/**
+ * Obtiene estadisticas del dashboard para pacientes
+ * @async
+ * @function getPatientStats
+ * @param {Object} req - objeto de peticion Express
+ * @param {string} req.params.pacienteId - ID del paciente
+ * @param {Object} res - objeto de respuesta Express
+ * @returns {Promise<void>} responde con proxima cita, citas pendientes y tipo de seguro
+ * @description valida que el paciente existe antes de consultar estadisticas
+ */
 async function getPatientStats(req, res) {
     try {
         const { pacienteId } = req.params;
