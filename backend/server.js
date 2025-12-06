@@ -1,10 +1,10 @@
 /**
- * Clínica Dental Vaca Diez - Backend Server
- * 
- * Main Express server configuration and initialization for the dental clinic
- * management system API. Handles middleware setup, database connection,
- * and route registration.
- * 
+ * Clínica Dental Vaca Diez - Servidor Backend
+ *
+ * Configuración e inicialización principal del servidor Express para la API
+ * del sistema de gestión de la clínica dental. Maneja la configuración de
+ * middleware, la conexión a la base de datos y el registro de rutas.
+ *
  * @module server
  * @requires express
  * @requires cors
@@ -26,52 +26,52 @@ dotenv.config();
 const app = express();
 
 /**
- * Server port configuration
- * Uses environment variable PORT or defaults to 5000
+ * Configuración del puerto del servidor
+ * Usa la variable de entorno PORT o por defecto 5000
  * @constant {number}
  */
 const PORT = process.env.PORT || 5000;
 
 /**
- * Middleware Configuration
- * 
- * Configures CORS for cross-origin requests and JSON body parsing
- * for incoming request bodies
+ * Configuración de middleware
+ *
+ * Configura CORS para peticiones cross-origin y el parseo de JSON
+ * para los cuerpos de las solicitudes entrantes
  */
 app.use(cors());
 app.use(express.json());
 
 /**
- * Initialize database connection
- * Establishes connection to SQL Server database with fallback to mock mode
+ * Inicializar la conexión a la base de datos
+ * Establece la conexión con SQL Server con retroceso a modo simulado
  */
 connectDB();
 
 /**
- * API Routes Configuration
- * 
- * Registers authentication routes under /api/auth prefix
- * All authentication endpoints are handled by authRoutes module
+ * Configuración de rutas de la API
+ *
+ * Registra las rutas de autenticación bajo el prefijo /api/auth
+ * Todos los endpoints de autenticación son manejados por el módulo authRoutes
  */
 app.use('/api/auth', require('./routes/authRoutes'));
 
 /**
- * Health Check Endpoint
- * 
+ * Endpoint de verificación de estado
+ *
  * @route GET /
- * @desc Confirms API is running and accessible
- * @access Public
- * @returns {string} API status message
+ * @desc Confirma que la API está en funcionamiento y accesible
+ * @access Público
+ * @returns {string} Mensaje de estado de la API
  */
 app.get('/', (req, res) => {
   res.send('Clinica Dental Vaca Diez API Running');
 });
 
 /**
- * Start Express Server
- * 
- * Initializes the HTTP server and begins listening for incoming requests
- * on the configured port
+ * Iniciar el servidor Express
+ *
+ * Inicializa el servidor HTTP y comienza a escuchar las solicitudes
+ * entrantes en el puerto configurado
  */
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

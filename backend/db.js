@@ -77,11 +77,11 @@ const mockRequest = () => {
 
 /**
  * Obtener objeto de solicitud de base de datos
- * 
+ *
  * Retorna ya sea un objeto de solicitud de base de datos real (si está conectado) o un objeto
  * simulado para desarrollo/pruebas. Esto permite que los controladores funcionen
  * sin problemas independientemente del estado de conexión de la base de datos.
- * 
+ *
  * @function getRequest
  * @returns {sql.Request|Object} Objeto de solicitud de base de datos o equivalente simulado
  */
@@ -94,11 +94,11 @@ const getRequest = () => {
 
 /**
  * Exportar módulos de base de datos
- * 
+ *
  * Proporciona acceso a la conexión SQL, función de conexión y utilidad para
  * obtener objetos de solicitud. Los controladores deben usar getRequest() para
  * compatibilidad con modo simulado.
- * 
+ *
  * @exports {Object} Módulo con connectDB, sql y getRequest
  */
 module.exports = { connectDB, sql, getRequest };
