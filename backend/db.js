@@ -1,10 +1,10 @@
 /**
- * Database Connection Module
- * 
- * Handles SQL Server database connection using msnodesqlv8 driver.
- * Provides connection management with automatic fallback to mock mode
- * for development and testing purposes.
- * 
+ * Módulo de Conexión a la Base de Datos
+ *
+ * Maneja la conexión a SQL Server usando el driver msnodesqlv8.
+ * Proporciona gestión de la conexión con retroceso automático a modo
+ * simulado para desarrollo y pruebas.
+ *
  * @module db
  * @requires mssql/msnodesqlv8
  * @requires dotenv
@@ -14,28 +14,30 @@ const sql = require('mssql/msnodesqlv8');
 require('dotenv').config();
 
 /**
- * SQL Server database configuration string
- * Uses Windows Authentication (Trusted Connection) to connect to local SQL Server instance
+ * Cadena de configuración para la base de datos SQL Server
+ * Utiliza autenticación de Windows (Trusted Connection) para conectar
+ * a la instancia local de SQL Server
  * @constant {string}
  */
 const dbConfig = "server=localhost;Database=ClinicaDental_DBII;Trusted_Connection=Yes;Driver=msnodesqlv8";
 
 /**
- * Global connection pool instance
+ * Instancia global del pool de conexión
  * @type {sql.ConnectionPool|null}
  */
 let pool = null;
 
 /**
- * Establish database connection
- * 
- * Attempts to connect to SQL Server using the configured connection string.
- * Falls back to mock mode if connection fails, allowing development without database.
- * 
+ * Establecer conexión a la base de datos
+ *
+ * Intenta conectar a SQL Server usando la cadena de configuración.
+ * Cuando la conexión falla, cambia a modo simulado para permitir
+ * el desarrollo sin una base de datos real.
+ *
  * @async
  * @function connectDB
  * @returns {Promise<void>}
- * @throws {Error} Logs connection error and switches to mock mode
+ * @throws {Error} Registra el error de conexión y cambia a modo simulado
  */
 const connectDB = async () => {
     try {
@@ -48,14 +50,14 @@ const connectDB = async () => {
 };
 
 /**
- * Creates a mock database request object for development/testing
- * 
- * Provides a mock implementation that simulates database operations
- * without requiring an actual database connection. Returns empty results
- * by default with special handling for common queries.
- * 
+ * Crea un objeto de solicitud de base de datos simulado para desarrollo/pruebas
+ *
+ * Proporciona una implementación simulada que emula operaciones de base de datos
+ * sin requerir una conexión real. Devuelve resultados vacíos por defecto
+ * con manejo especial para consultas comunes.
+ *
  * @function mockRequest
- * @returns {Object} Mock request object with input() and query() methods
+ * @returns {Object} Objeto de solicitud simulado con métodos input() y query()
  */
 const mockRequest = () => {
     return {

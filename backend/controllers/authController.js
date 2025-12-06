@@ -1,10 +1,10 @@
 /**
  * Controlador de Autenticación
- * 
+ *
  * Maneja el registro y login de usuarios en el sistema de la clínica dental.
  * Utiliza el esquema de base de datos correcto con NombreUsuario, PasswordHash y RolID.
  * Proporciona respaldo simulado cuando la conexión a base de datos falla.
- * 
+ *
  * @module controllers/authController
  * @requires mssql
  * @requires bcryptjs
@@ -24,11 +24,11 @@ const ROL_USER = 2;
 
 /**
  * Registrar nuevo usuario en el sistema
- * 
+ *
  * Crea un nuevo usuario con el email como NombreUsuario y contraseña hasheada.
  * Asigna automáticamente el rol de usuario normal (RolID = 2).
  * Proporciona modo simulado cuando la base de datos no está disponible.
- * 
+ *
  * @async
  * @function register
  * @param {Object} req - Objeto de solicitud Express
@@ -38,7 +38,7 @@ const ROL_USER = 2;
  * @param {Object} res - Objeto de respuesta Express
  * @returns {Promise<void>} Respuesta JSON con mensaje de éxito o error
  * @throws {Error} Error del servidor o de base de datos
- * 
+ *
  * @example
  * // Solicitud exitosa
  * POST /api/auth/register
@@ -99,11 +99,11 @@ const register = async (req, res) => {
 
 /**
  * Iniciar sesión de usuario
- * 
+ *
  * Autentica al usuario usando email y contraseña, genera un token JWT
  * válido por 1 hora. Incluye información del usuario y su rol en la respuesta.
  * Proporciona usuarios simulados cuando la base de datos no está disponible.
- * 
+ *
  * @async
  * @function login
  * @param {Object} req - Objeto de solicitud Express
@@ -113,7 +113,7 @@ const register = async (req, res) => {
  * @param {Object} res - Objeto de respuesta Express
  * @returns {Promise<void>} Respuesta JSON con token JWT y datos del usuario
  * @throws {Error} Error del servidor o de autenticación
- * 
+ *
  * @example
  * // Solicitud exitosa
  * POST /api/auth/login
@@ -206,7 +206,7 @@ const login = async (req, res) => {
 
 /**
  * Exportar funciones del controlador de autenticación
- * 
+ *
  * @exports {Object} Funciones register y login
  */
 module.exports = {
